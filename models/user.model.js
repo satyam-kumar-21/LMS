@@ -54,24 +54,28 @@ userSchema.pre('save', async function(next) {
     this.password = await bcrypt.hash(this.password, 10);
 })
 
-const JWT_SECRET = process.env.JWT_SECRET || 'abcsdbdbfbf';
-const JWT_EXPIRY = process.env.JWT_EXPIRY || '24h';
+const JWT_SECRET = process.env.JWT_SECRET || "abcsdbdbfbf";
+const JWT_EXPIRY = process.env.JWT_EXPIRY || "24h";
 
-userSchema.method = {
-    generateJWTToken : async function(){
-        return await Jwt.sign(
-            {id: this._id, email: this.email, subscription: this.subscription,role: this.role},
-            JWT_SECRET,
-            {
-                expiresIn : JWT_EXPIRY,
-            }
-        )
-    },
-    comparePassword: async function(plainTextPassword){
-        return await bycrypt.campare(plainTextPassword, this.password)
-    }
-}
-
+userSchema.methods = {
+  generateJWTToken: async function () {
+    return await Jwt.sign(
+      {
+        id: this._id,
+        email: this.email,
+        subscription: this.subscription,
+        role: this.role,
+      },
+      JWT_SECRET,
+      {
+        expiresIn: JWT_EXPIRY,
+      }
+    );
+  },
+  comparePassword: async function (plainTextPassword) {
+    return await bcrypt.compare(plainTextPassword, this.password); // Fixed the typo here from "bycrypt" to "bcrypt"
+  },
+};
 const User = model('User',userSchema);
 
 export default User;

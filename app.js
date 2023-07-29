@@ -18,7 +18,7 @@ app.use(cors({
 app.use(morgan('dev'));
 
 app.use('/ping', (req,res) =>{
-    res.send('/pong');
+    res.send('Pong');
 });
 
 app.use('/api/v1/user',userRoutes);

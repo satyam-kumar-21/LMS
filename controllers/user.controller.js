@@ -1,5 +1,7 @@
 import User from "../models/user.model.js";
 import AppError from "../utils/error.util.js";
+import cloudinary from "cloudinary";
+import fs from 'fs/promises';
 
 const cookieOptions = {
     maxAge: 7 * 24 * 60 * 1000,  //7days
@@ -34,7 +36,33 @@ const register = async (req,res, next) =>{
         return next(new AppError("User registration failed, please try again!!",400));
     }
 
-    //TODO file upload
+    // file upload
+    // console.log("File details > ",JSON.stringify(req.file));
+
+    if(req.file){
+        try {
+            const result = await cloudinary.v2.uploader.upload(req.file.path,{
+                folder: 'lms',
+                width: 250,
+                height : 250,
+                gravity : 'faces',
+                crop: 'fill'
+            });
+            
+
+            if(result){
+                user.avatar.public_id = result.public_id;
+                user.avatar.secure_url = result.secure_url;
+                // remove file from srver 
+                // fs.rm(`uploads/${req.file.filename}`);
+            }
+        } catch (error) {
+            return next(
+                new AppError(e || 'file not uploaded, please try again', 500)
+            )
+        }
+    }
+    
 
     await user.save();
 
@@ -64,7 +92,7 @@ const login = async (req, res,next) =>{
         email
     }).select('password');
 
-    if(!user || !user.comparePassword(password)){
+    if(!user || !(await user.comparePassword(password))){
         return next(new AppError('email and password does not match',400));
     }
 
