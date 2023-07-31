@@ -17,8 +17,8 @@ app.use(cors({
 }))
 app.use(morgan('dev'));
 
-app.use('/ping', (req,res) =>{
-    res.send('Pong');
+app.use('/', (req,res) =>{
+    res.send('________Welcome to Learning management system _______');
 });
 
 app.use('/api/v1/user',userRoutes);
